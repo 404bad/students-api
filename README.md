@@ -342,65 +342,6 @@ database:
   dbname: students_db
 ```
 
-### Create Configuration Structure
-
-### config/config.go
-
-```go
-package config
-
-import (
-	"os"
-
-	"gopkg.in/yaml.v3"
-)
-
-type Config struct {
-	Env string `yaml:"env"`
-
-	HTTPServer struct {
-		Address     string `yaml:"address"`
-		Timeout     string `yaml:"timeout"`
-		IdleTimeout string `yaml:"idle_timeout"`
-	} `yaml:"http_server"`
-}
-
-func MustLoad(path string) *Config {
-	data, err := os.ReadFile(path)
-
-	if err != nil {
-		panic(err)
-	}
-
-	var cfg Config
-
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		panic(err)
-	}
-
-	return &cfg
-}
-```
-
-### Loading Configuration
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"student-api/config"
-)
-
-func main() {
-	cfg := config.MustLoad("config/local.yaml")
-
-	fmt.Println("Environment:", cfg.Env)
-	fmt.Println("Server Address:", cfg.HTTPServer.Address)
-}
-```
-
 ## Combining Both Methods (Recommended)
 
 In real-world applications, both methods are typically used together.
@@ -457,3 +398,49 @@ CONFIG_PATH=config/prod.yaml
 - Validate configuration during application startup.
 
 ---
+
+# 3. Serialize the cnfig file to go database
+
+create a foler called internal or pkg, inside internal config then config.go
+
+### Create Configuration Structure
+
+### config/config.go
+
+```go
+package config
+
+type HTTPServer struct {
+		Address     string `yaml:"address"`
+		Timeout     string `yaml:"timeout"`
+		IdleTimeout string `yaml:"idle_timeout"`
+} 
+
+type Config struct {
+	Env string `yaml:"env"`
+	HTTPServer HTTPServer `yaml:"http_server"`
+	StoragePath string `yaml:"storage_path"`
+}
+
+```
+
+run thi on termibal go get -u github.com/ilyakaznacheev/cleanenv
+
+### Loading Configuration
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"student-api/config"
+)
+
+func main() {
+	cfg := config.MustLoad("config/local.yaml")
+
+	fmt.Println("Environment:", cfg.Env)
+	fmt.Println("Server Address:", cfg.HTTPServer.Address)
+}
+```
