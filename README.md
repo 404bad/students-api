@@ -414,7 +414,7 @@ type HTTPServer struct {
 		Address     string `yaml:"address"`
 		Timeout     string `yaml:"timeout"`
 		IdleTimeout string `yaml:"idle_timeout"`
-} 
+}
 
 type Config struct {
 	Env string `yaml:"env"`
@@ -443,4 +443,52 @@ func main() {
 	fmt.Println("Environment:", cfg.Env)
 	fmt.Println("Server Address:", cfg.HTTPServer.Address)
 }
+```
+
+### write the simple main.go
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/404bad/students-api/internal/config"
+)
+
+
+func main(){
+
+	// load configuration
+	cfg := config.MustLoadConfig()
+
+	//database connection
+
+	// setup router
+	router := http.NewServeMux()
+
+	router.HandleFunc("GET /",func(w http.ResponseWriter, r *http.Request){
+		w.Write([]byte("Welcome to student Api"))
+	})
+
+	//setup http server
+	server := http.Server{
+		Addr: cfg.HTTPServer.Address,
+		Handler: router,
+	}
+	err := server.ListenAndServe()
+
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
+	fmt.Println("Server started on", cfg.HTTPServer.Address)
+}
+```
+
+and run with
+
+```bash
+go run cmd/students-api/main.go -config config/local.yaml
 ```

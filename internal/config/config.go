@@ -29,12 +29,12 @@ func MustLoadConfig() *Config {
 
 	// If the CONFIG_PATH environment variable is not set, we can also allow the user to specify the config path via command-line flags.
 	if configPath == "" {
-		flags := flag.String("Config","", "path to the configuration file")
+		configFlag := flag.String("config","", "path to the configuration file")
 		flag.Parse()
-		configPath = *flags
+		configPath = *configFlag
 		// If the config path is still empty after checking both environment variable and command-line flag, we should log a fatal error and exit the application.
 		if configPath == "" {
-			log.Fatal("CONFIG_PATH environment variable is not set and no command-line flag provided")
+			log.Fatal("config path is not provided")
 		}
 	}
 	// Check if the configuration file exists at the specified path
@@ -46,10 +46,8 @@ func MustLoadConfig() *Config {
 	var cfg	 Config
 	
 	// Use the cleanenv package to read the configuration file and populate the Config struct. If there is an error during this process, log a fatal error and exit the application.
-	err := cleanenv.ReadConfig(configPath, &cfg)
-
 	// If there is an error reading the configuration, log a fatal error and exit the application. This ensures that the application does not run with an invalid or missing configuration.
-	if err != nil {
+	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		log.Fatalf("Failed to read configuration: %v", err)
 	}
 
